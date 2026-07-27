@@ -6,8 +6,7 @@ int main()
     try
     {
         double dt = 0.01;
-        int loop = 1000;
-        createData(dt,loop);
+        startSimulation(dt);
     }
     catch (const std::exception& e)
     {
