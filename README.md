@@ -1,46 +1,199 @@
-# 🚀 6-DOF Rocket SITL Simulation & GNC Sensor Filtering
+# 6-DOF Rocket Flight Simulation
 
-A C++ Software-in-the-Loop (SITL) 6-Degree-of-Freedom (6-DOF) flight dynamics simulation paired with a Python telemetry/GNC visualization dashboard.
+A C++-based 6-DOF rocket flight simulation project focused on rigid-body dynamics, changing mass properties, sensor modeling, telemetry generation, and post-flight data analysis.
 
-This project simulates real-world rocket dynamics including dynamic mass depletion, thrust profile curves, coupled rotational-translational kinematics, atmospheric turbulence, MEMS IMU sensor noise, and Low-Pass Filtering (LPF).
-
----
-
-## 📊 Telemetry & GNC Dashboard
-
-![GNC Simulation Dashboard](gnc_simulation_dashboard.png)
+The project is intended as a simulation foundation for future **Guidance, Navigation & Control (GNC)** development.
 
 ---
 
-## 🔑 Key Engineering Features
+## 🚀 Project Overview
 
-- **Coupled 6-DOF Flight Kinematics:** Translates body-frame thrust vector to inertial frame using real-time orientation ($\theta_y$ pitch angle).
-- **Dynamic Mass & Center of Gravity ($CG$) Shift:** Implements linear interpolation (LERP) for continuous $CG$ movement as propellant burns out, dynamically updating torque arms (r(t) = z_{CP} - z_{CG}(t)$).
-- **Solid Rocket Motor Model:** Half-sine thrust curve profile (F_{max} \cdot \sin(\pi \cdot t / t_{burn})$) transitioning to ballistic coast flight after burnout.
-- **Atmosferic Wind & Turbulence (Gust):** Height-dependent linear base wind speed ($F_0 + k \cdot z$) layered with stochastic low-frequency wind turbulence.
-- **IMU Sensor Noise Modeling:** Adds Gaussian (White) noise to real accelerations and angular velocities to simulate realistic hardware sensor measurements.
-- **Low-Pass Filter (LPF) Signal Processing:** Sinks raw noisy sensor data to produce clean state estimates for numerical velocity/position integration.
-- **Launch Rail Constraint:** Zero-velocity ground lock state preventing early launch until thrust overcomes total gravity weight ($F_{thrust\_z} > m \cdot g$).
+The simulator models the motion of a rocket in six degrees of freedom:
+
+### Translational Motion
+
+* Position
+* Velocity
+* Acceleration
+
+### Rotational Motion
+
+* Attitude
+* Angular velocity
+* Rotational dynamics
+
+The simulation also accounts for several non-ideal physical and sensor effects.
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## 🧮 Dynamics Model
 
-- **Core Simulation Engine:** C++ (OOP, System Architecture, Physics Integrator)
-- **Data Pipeline & File I/O:** C++ (`std::fstream` exporting structured `.csv` logs)
-- **Data Analysis & Visualization:** Python 3 (`pandas`, `matplotlib`)
-- **OS/Environment:** Linux (Ubuntu / WSL) & Cross-Platform C++
+The simulation includes:
+
+* 6-DOF rigid-body dynamics
+* Variable mass
+* Center-of-gravity variation
+* Thrust profile
+* Gravity
+* Aerodynamic/environmental effects
+* Atmospheric wind/turbulence effects
+
+Changing mass properties are incorporated throughout the flight rather than assuming a constant vehicle mass.
 
 ---
 
-## 📁 Repository Structure
+## 📡 Sensor Modeling
+
+The simulator includes an IMU-oriented sensor model with effects such as:
+
+* Measurement noise
+* Bias
+* Filtering
+
+A low-pass filtering stage is used to process simulated measurements before telemetry analysis.
+
+---
+
+## 📊 Telemetry & Visualization
+
+Simulation data is exported for post-processing and visualization.
+
+Python is used for:
+
+* Telemetry analysis
+* Plotting
+* Flight-data visualization
+* Inspecting simulated system behavior
+
+This separation keeps the core flight-dynamics simulation in C++ while using Python for analysis and visualization.
+
+---
+
+## 🏗️ Project Structure
 
 ```text
 .
-├── include/              # C++ Header files (State, Vector3, DataPipeline)
-├── src/                  # C++ Source files (Physics engine, Sensor models)
-├── main.cpp              # Entry point for simulation loop
-├── plot_simulation.py    # Python GNC visualizer dashboard script
-├── simulation_output.csv # Generated simulation telemetry log
-├── gnc_simulation_dashboard.png # Output visualization graph
-└── README.md             # Project documentation
+├── header/
+├── source/
+├── visualise/
+└── README.md
+```
+
+The project separates declarations, implementations, and visualization/analysis components to keep the codebase modular.
+
+---
+
+## 🔄 Simulation Pipeline
+
+```text
+        Rocket Parameters
+               │
+               ▼
+       6-DOF Dynamics Model
+               │
+       ┌───────┴────────┐
+       │                │
+       ▼                ▼
+ Translational       Rotational
+   Dynamics            Dynamics
+       │                │
+       └───────┬────────┘
+               ▼
+          Sensor Model
+               │
+               ▼
+           Filtering
+               │
+               ▼
+           Telemetry
+               │
+               ▼
+       Python Visualization
+```
+
+---
+
+## 🎯 Motivation
+
+The long-term goal of this project is to evolve the simulator into a complete GNC development environment.
+
+The current simulation provides the dynamics and sensor-modeling foundation required for future work in:
+
+* State estimation
+* Sensor fusion
+* Guidance
+* Feedback control
+* Actuator modeling
+* Autonomous flight
+
+---
+
+## 🔮 Planned Development
+
+Future development is planned around:
+
+### Navigation
+
+* Kalman Filter
+* Extended Kalman Filter
+* IMU/GPS sensor fusion
+* Attitude estimation
+
+### Control
+
+* State-space modeling
+* LQR
+* Optimal control
+* MPC
+
+### GNC
+
+```text
+Guidance
+    ↓
+Navigation / State Estimation
+    ↓
+Control
+    ↓
+Actuator Model
+    ↓
+6-DOF Rocket Dynamics
+    ↓
+Sensor Model
+    └───────────────↺
+```
+
+The goal is to gradually transform the current flight simulator into a complete closed-loop GNC simulation platform.
+
+---
+
+## 🛠️ Technologies
+
+### Core Simulation
+
+* C++
+* 6-DOF Dynamics
+* Numerical Simulation
+
+### Data Analysis
+
+* Python
+* NumPy
+* Matplotlib
+
+### Concepts
+
+* Rigid-body dynamics
+* Flight simulation
+* Sensor modeling
+* Filtering
+* Telemetry
+* GNC
+
+---
+
+## 📌 Project Status
+
+The current version focuses primarily on **flight dynamics, sensor modeling, filtering, and telemetry**.
+
+GNC algorithms such as EKF, LQR, and MPC are planned future extensions rather than part of the current implementation.
